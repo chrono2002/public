@@ -1,4 +1,3 @@
-
 FROM php:7.3.9-fpm-alpine3.10
 
 RUN apk update && apk upgrade
