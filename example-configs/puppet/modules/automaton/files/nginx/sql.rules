@@ -1,0 +1,3 @@
+if ($request_uri ~* "select%20|select\+|union%20|union\+|update%20|update\+|insert%20|insert\+|drop%20|drop\+|hex%20|hex\+|unhex%20|unhex\+|null\,null|xp_cmdshell") {
+    return 500;
+}

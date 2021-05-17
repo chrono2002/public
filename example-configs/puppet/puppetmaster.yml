@@ -1,0 +1,17 @@
+# puppetmaster.yml
+chdir: /etc/puppet
+environment: production
+group: puppet
+#log: /etc/puppet/rack/logs/puppetmaster
+log: /var/log/puppet/puppetmaster
+max_conns: 1024
+max_persistent_conns: 512
+#pid: /etc/puppet/rack/tmp/thin.pid
+pid: /var/run/puppet/thin.pid
+rackup: /etc/puppet/config.ru
+servers: 3
+#socket: /etc/puppet/rack/tmp/puppetmasterd.sock
+socket: /var/run/puppet/puppetmasterd.sock
+timeout: 600
+user: puppet
+wait: 30

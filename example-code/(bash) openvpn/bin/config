@@ -1,0 +1,3 @@
+CCD=/usr/local/etc/openvpn/chroot/ccd
+#CCD2=/usr/local/etc/openvpn_tcp/chroot/ccd
+LOCKDIR=/usr/local/etc/vpn_lock

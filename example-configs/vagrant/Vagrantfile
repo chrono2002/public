@@ -1,0 +1,80 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  # For a complete reference, please see the online documentation at
+  # https://docs.vagrantup.com.
+
+  # config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
+
+  # config.vm.synced_folder "../data", "/vagrant_data"
+
+  config.vm.provider :libvirt do |libvirt|
+    libvirt.default_prefix = 'docker'
+    libvirt.storage_pool_name = 'images'
+    libvirt.storage :file, :size => '30G', :type => 'qcow2'
+    libvirt.memory = 2048
+    libvirt.volume_cache = 'writeback'
+    libvirt.autostart = true
+#    libvirt.mgmt_attach = false
+  end
+
+  config.vm.network "public_network",
+    :dev => "br0",
+    :use_dhcp_assigned_default_route => true
+#    :auto_config => false
+
+  # -- SERVER
+
+  config.vm.define "server" do |server|
+    ip = "172.20.0.231"
+    ip2 = "192.168.121.11"
+    hostname = "server.docker"
+
+    server.vm.box = "generic/ubuntu1804"
+    server.vm.provision "shell", path: "provision.sh", :args => ["#{ip}", "#{hostname}", "#{ip2}"]
+    server.trigger.after :up, run: {inline: "/sbin/route add -host #{ip} virbr1"}, on_error: :continue
+    server.trigger.after :destroy, :halt, run: {inline: "/sbin/route del -host #{ip} virbr1"}, on_error: :continue
+#    route add -host #{ip} virbr1
+  end
+
+  # -- NODE1
+
+  config.vm.define "node1" do |node1|
+    ip = "172.20.0.232"
+    ip2 = "192.168.121.12"
+    hostname = "node1.docker"
+
+    node1.vm.box = "generic/ubuntu1804"
+    node1.vm.provision "shell", path: "provision.sh", :args => ["#{ip}", "#{hostname}", "#{ip2}"]
+    node1.trigger.after :up, run: {inline: "/sbin/route add -host #{ip} virbr1"}, on_error: :continue
+    node1.trigger.after :destroy, :halt, run: {inline: "/sbin/route del -host #{ip} virbr1"}, on_error: :continue
+  end
+
+  # -- NODE2
+
+  config.vm.define "node2" do |node2|
+    ip = "172.20.0.233"
+    ip2 = "192.168.121.13"
+    hostname = "node2.docker"
+
+    node2.vm.box = "generic/ubuntu1804"
+    node2.vm.provision "shell", path: "provision.sh", :args => ["#{ip}", "#{hostname}", "#{ip2}"]
+    node2.trigger.after :up, run: {inline: "/sbin/route add -host #{ip} virbr1"}, on_error: :continue
+    node2.trigger.after :destroy, :halt, run: {inline: "/sbin/route del -host #{ip} virbr1"}, on_error: :continue
+  end
+
+  # -- NODE3
+
+  config.vm.define "node3" do |node3|
+    ip = "172.20.0.234"
+    ip2 = "192.168.121.14"
+    hostname = "node3.docker"
+
+    node3.vm.box = "generic/ubuntu1804"
+    node3.vm.provision "shell", path: "provision.sh", :args => ["#{ip}", "#{hostname}", "#{ip2}"]
+    node3.trigger.after :up, run: {inline: "/sbin/route add -host #{ip} virbr1"}, on_error: :continue
+    node3.trigger.after :destroy, :halt, run: {inline: "/sbin/route del -host #{ip} virbr1"}, on_error: :continue
+  end
+
+end

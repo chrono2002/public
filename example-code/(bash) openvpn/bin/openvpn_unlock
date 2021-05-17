@@ -1,0 +1,5 @@
+#!/bin/bash
+
+source /usr/local/bin.vpn/config
+
+rm "${LOCKDIR}/${common_name}"

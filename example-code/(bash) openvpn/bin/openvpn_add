@@ -1,0 +1,36 @@
+#!/bin/bash
+
+source /usr/local/bin.vpn/config
+
+if [ "$1" ]; then
+    echo -n "Adding user to openvpn... "
+
+    username="$1"
+
+    if [ -f "$CCD/$username" ]; then echo "user already exist!"; exit; fi
+
+    count=$(cat ${CCD}.count)
+    let count++
+    echo $count > ${CCD}.count
+
+    ip=$(/usr/local/bin/openvpn_ip.pl $count 254)
+
+    if [ $CCD2 ]; then
+	ip2=$(/usr/local/bin/openvpn_ip.pl $count 253)
+    fi
+
+    cd /usr/local/etc/openvpn/easy-rsa
+    . ./vars
+    ./build-key-pkcs12 ${1}
+#    chmod g+r /usr/local/etc/openvpn/keys/*.p12
+    
+    echo $ip >> "$CCD/$username"
+    
+    if [ $CCD2 ]; then
+	echo $ip2 >> "$CCD2/$username"
+    fi
+
+    echo "done"
+else
+    echo "$0 <username>"
+fi

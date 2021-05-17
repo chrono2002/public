@@ -1,0 +1,19 @@
+PidFile=/var/run/zabbix/zabbix_agentd.pid
+LogFile=/var/log/zabbix/zabbix_agentd.log
+
+EnableRemoteCommands=1
+Hostname=<%= @fqdn %>
+StartAgents=0
+RefreshActiveChecks=3600
+BufferSend=60
+BufferSize=10000
+MaxLinesPerSecond=1000
+Timeout=15
+
+<% if @vkdj %>
+ServerActive=mon711.vkdj.org:1025
+Include=/etc/zabbix/zabbix_agentd.d/vkdj.conf
+<% else %>
+ServerActive=overlord.fhs.su:1025
+<% end %>
+Include=/etc/zabbix/zabbix_agentd.d/fhs.conf

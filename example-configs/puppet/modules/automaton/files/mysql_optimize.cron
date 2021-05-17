@@ -1,0 +1,11 @@
+#!/bin/sh
+
+HOME=/root
+NICE="$(which nice) -n 19 $(which ionice) -c 3"
+LOG=/var/log/mysql_optimize.log
+
+if ! pgrep mysqlcheck; then
+    $NICE /usr/bin/mysqlcheck --all-databases --check-upgrade >>$LOG 2>&1
+    $NICE /usr/bin/mysqlcheck --all-databases --analyze --auto-repair --use-frm >>$LOG 2>&1
+    $NICE /usr/bin/mysqlcheck --all-databases --optimize >>$LOG 2>&1
+fi

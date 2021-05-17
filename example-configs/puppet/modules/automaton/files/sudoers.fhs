@@ -1,0 +1,9 @@
+zabbix   ALL=(ALL) NOPASSWD: /sbin/iptables -L -n
+zabbix   ALL=(ALL) NOPASSWD: /sbin/shorewall status
+zabbix   ALL=(ALL) NOPASSWD: /usr/sbin/smartctl
+zabbix   ALL=(ALL) NOPASSWD: /sbin/mdadm
+zabbix   ALL=(ALL) NOPASSWD: /bin/nice -n 19 wc -l /proc/net/nf_conntrack
+zabbix   ALL=(ALL) NOPASSWD: /usr/bin/tee /dev/kmsg
+zabbix   ALL=(ALL) NOPASSWD: /usr/sbin/rabbitmqctl -q list_queues -p vkdj
+zabbix   ALL=(ALL) NOPASSWD: /usr/sbin/conntrack -C
+zabbix   ALL=(ALL) NOPASSWD: /etc/zabbix/zabbix_agentd.d/collect-libvirt-handler.pl

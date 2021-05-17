@@ -1,0 +1,9 @@
+#!/bin/bash
+
+echo -e "\nUsername\tRemote IP\t\tLocal IP\tConnected at"
+echo -e "--------\t---------\t\t--------\t------------"
+
+cat /var/log/openvpn-status.log | awk -F, '{ \
+    if ($1 ~ /[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/) { \
+        printf("%-15s %-23s %-15s %s\n\n",$2,$3,$1,$4); \
+    }}'

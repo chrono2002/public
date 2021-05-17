@@ -1,0 +1,100 @@
+[mysqld]
+character-set-server=utf8
+##datadir=/var/lib/mysql
+##socket=/var/lib/mysql/mysql.sock
+
+bind-address = 127.0.0.1
+local-infile = 0
+skip-symbolic-links
+low-priority-updates
+delay_key_write = all
+concurrent_insert = ALWAYS
+skip-external-locking
+
+optimizer_search_depth = 0
+max_connections = 128
+open_files_limit = 8K
+thread_concurrency = <%= @processorcount.to_i * 3 %>
+
+
+<% if @memorysize_mb.to_i < 600 %>
+key_buffer = 32M
+innodb_buffer_pool_size = 32M
+
+table_cache = 1K
+
+query_cache_size = 16M
+query_cache_limit = 1MB
+<% elsif @memorysize_mb.to_i < 1200 %>
+key_buffer = 64M
+innodb_buffer_pool_size = 64M
+
+table_cache = 1K
+
+query_cache_size = 32M
+query_cache_limit = 1MB
+
+tmp_table_size = 64M
+max_heap_table_size = 64M
+<% elsif @memorysize_mb.to_i < 2400 %>
+key_buffer = 128M
+innodb_buffer_pool_size = 128M
+
+table_cache = 4K
+
+query_cache_size = 64M
+query_cache_limit = 2MB
+
+tmp_table_size = 64M
+max_heap_table_size = 64M
+<% elsif @memorysize_mb.to_i < 4800 %>
+key_buffer = 256M
+innodb_buffer_pool_size = 256M
+
+table_cache = 8K
+
+query_cache_size = 64M
+query_cache_limit = 2MB
+
+tmp_table_size = 128M
+max_heap_table_size = 128M
+<% else %>
+key_buffer = 1024M
+innodb_buffer_pool_size = 1024M
+
+table_cache = 128K
+
+query_cache_size = 64M
+query_cache_limit = 2MB
+
+tmp_table_size = 128M
+max_heap_table_size = 128M
+<% end %>
+
+sort_buffer_size = 2M
+read_buffer_size = 2M
+join_buffer_size = 64M
+read_rnd_buffer_size = 8M
+myisam_sort_buffer_size = 64M
+thread_cache_size = 16K
+thread_stack = 192K
+max_allowed_packet = 16M
+table_definition_cache = 4K
+
+default-storage-engine = innodb
+innodb_log_file_size = 256M
+innodb_log_buffer_size = 4M
+innodb_flush_log_at_trx_commit = 2
+innodb_thread_concurrency = <%= 2* @processorcount.to_i + 2 %>
+innodb_flush_method     = O_DIRECT
+transaction-isolation   = READ-COMMITTED
+innodb_file_per_table = 1
+innodb_additional_mem_pool_size = 20M
+
+tmpdir = /dev/shm
+
+[mysqld_safe]
+##log-error=/var/log/mysqld.log
+##pid-file=/var/run/mysqld/mysqld.pid
+
+[client]

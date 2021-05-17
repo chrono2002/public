@@ -1,0 +1,36 @@
+acl "xfer" {
+    none;
+};
+
+acl "trusted" {
+    localhost;
+};
+
+options {
+    listen-on-v6 port 53 { none; };
+
+    directory       "/var/cache/bind";
+//    dump-file       "/var/named/data/cache_dump.db";
+//    statistics-file "/var/named/data/named_stats.txt";
+//    memstatistics-file "/var/named/data/named_mem_stats.txt";
+
+    zone-statistics yes;
+
+    notify no;
+    transfer-format many-answers;
+    max-transfer-time-in 60;
+    interface-interval 0;
+
+    recursion no; 
+    additional-from-auth no; 
+    additional-from-cache no;
+
+    allow-transfer { 
+        xfer; 
+    };
+};
+
+zone "<%= @host %>" in { 
+    type master; 
+    file "/etc/bind/<%= @host %>";
+};

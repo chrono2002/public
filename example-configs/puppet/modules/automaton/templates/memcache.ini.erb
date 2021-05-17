@@ -1,0 +1,7 @@
+extension=memcache.so
+session.save_handler=memcache
+<% if @operatingsystemmajrelease = 7 %>
+session.save_path = "unix:///var/run/php-fpm/memcache.socket"
+<% else %>
+session.save_path = "unix:///tmp/memcache.socket"
+<% end %>

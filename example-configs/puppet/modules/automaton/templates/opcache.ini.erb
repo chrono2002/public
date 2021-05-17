@@ -1,0 +1,27 @@
+<% if @operatingsystemmajrelease = 7 %>
+zend_extension=/usr/lib64/php/modules/opcache.so
+<% else %>
+zend_extension=opcache.so
+<% end %>
+
+[opcache]
+opcache.enable=1
+opcache.enable_cli=1
+<% if @memorysize_mb.to_i < 300 %>
+opcache.memory_consumption=32
+<% elsif @memorysize_mb.to_i < 600 %>
+opcache.memory_consumption=64
+<% elsif @memorysize_mb.to_i < 1200 %>
+opcache.memory_consumption=128
+<% elsif @memorysize_mb.to_i < 2400 %>
+opcache.memory_consumption=256
+<% else %>
+opcache.memory_consumption=512
+<% end %>
+opcache.interned_strings_buffer=16
+opcache.max_accelerated_files=32768
+opcache.max_wasted_percentage=5
+opcache.use_cwd=1
+opcache.validate_timestamps=1
+opcache.revalidate_freq=60
+opcache.fast_shutdown=1

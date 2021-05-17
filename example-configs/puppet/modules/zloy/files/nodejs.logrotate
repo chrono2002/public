@@ -1,0 +1,24 @@
+/www/*/logs/*.log {
+        daily
+        missingok
+        rotate 8
+        compress
+        delaycompress
+        notifempty
+#        create 0640 sc_mp3catalog logger
+        sharedscripts
+        copytruncate
+#        prerotate
+#                if [ -d /etc/logrotate.d/httpd-prerotate ]; then \
+#                        run-parts /etc/logrotate.d/httpd-prerotate; \
+#                fi; \
+#        endscript
+        postrotate
+                [ ! -f /var/run/nginx.pid ] || kill -USR1 `cat /var/run/nginx.pid`
+                cd /www; for SC_NAME in sc_*; do
+                    su - "${SC_NAME}" -c "./node_modules/forever/bin/forever stop app >>logrotate.log 2>&1"
+                    su - "${SC_NAME}" -c "./node_modules/forever/bin/forever -a -o /www/${SC_NAME}/logs/node-stdout.log -e /www/${SC_NAME}/logs/node-stderr.log start app >>logrotate.log 2>&1"
+                done
+#                #invoke-rc.d php5-fpm reopen-logs > /dev/null
+        endscript
+}

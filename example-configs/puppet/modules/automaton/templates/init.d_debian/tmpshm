@@ -1,0 +1,46 @@
+### BEGIN INIT INFO
+# Provides:          tmpshm
+# Required-Start:    $local_fs $remote_fs
+# Required-Stop:
+# X-Start-Before:    sudo
+# Default-Start:     2 3 4 5
+# Default-Stop:
+# Short-Description: blabla
+# Description: blablablabla
+### END INIT INFO
+
+. /lib/lsb/init-functions
+
+N=/etc/init.d/tmpshm
+SHMPATH=<%= @dir_www %>/tmp
+SHMUSER=<%= @user_www %>
+
+set -e
+
+case "$1" in
+  start)
+        # Check if it is already running
+	if ! df | grep $SHMPATH; then
+	    log_begin_msg "Creating tmpshm disk..."
+            mkdir -p $SHMPATH
+            mount -t tmpfs -o size=1g,rw,nodev,noexec,nosuid,mode=755 tmpfs $SHMPATH
+            chmod 700 $SHMPATH
+            chown $SHMUSER $SHMPATH
+            mkdir -p $SHMPATH/php_sessions $SHMPATH/php_uploads
+            chmod 700 $SHMPATH/php_sessions $SHMPATH/php_uploads
+            chown $SHMUSER $SHMPATH/php_sessions $SHMPATH/php_uploads
+            log_end_msg 0
+        fi
+        ;;
+  stop)
+        umount $SHMPATH &>/dev/null
+	;;
+  reload|restart|force-reload|status)
+        ;;
+  *)
+        echo "Usage: $N {start|stop|restart|force-reload|status}" >&2
+        exit 1
+        ;;
+esac
+
+exit 0

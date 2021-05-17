@@ -1,0 +1,22 @@
+#PORT="11211"
+USER="memcached"
+MAXCONN="1024"
+<% if @memorysize_mb.to_i < 600 %>
+CACHESIZE="32"
+<% elsif @memorysize_mb.to_i < 1200 %>
+CACHESIZE="64"
+<% elsif @memorysize_mb.to_i < 2400 %>
+CACHESIZE="128"
+<% else %>
+    <% if @vkdj %>
+CACHESIZE="1024"
+    <% else %>
+CACHESIZE="256"
+    <% end %>
+<% end %>
+
+<% if @operatingsystemmajrelease = 7 %>
+OPTIONS="-s /run/php-fpm/memcache.socket -a 0770"
+<% else %>
+OPTIONS="-s /tmp/memcache.socket -a 0770"
+<% end %>

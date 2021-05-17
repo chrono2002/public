@@ -1,0 +1,24 @@
+#!/bin/bash
+
+source /usr/local/bin.vpn/config
+
+if [ $1 ]; then
+    echo -n "Deleting user from openvpn... "
+
+    user=$1
+
+    if [ -f "$CCD/$user" ]; then
+	rm "$CCD/${user}"
+#	rm "$CCD/${user}.proxy" &>/dev/null
+	if [ $CCD2 ]; then
+	    rm "$CCD2/${user}"
+	fi
+	rm /usr/local/etc/openvpn/keys/${user}.*
+	rm `grep "CN=${user}/" /usr/local/etc/openvpn/keys/*.pem | cut -d ":" -f 1`
+	echo "done"
+    else
+	echo "no such user"
+    fi
+else
+    echo "$0 <username>"
+fi

@@ -1,0 +1,22 @@
+
+server {
+    server_name $domain www.$domain;
+    listen       $ip:80;
+
+    location / {
+	access_log /var/log/nginx/$domain.log main;
+	root /www/$domain;
+	index index.php index.html;
+    }
+
+    # -- PHP
+    location ~ ^/(.*\.php)$ {
+        include fastcgi_params;
+
+        fastcgi_param SCRIPT_FILENAME /www/$domain/\$1;
+        fastcgi_param DOCUMENT_ROOT /www/$domain;
+    
+        fastcgi_pass unix:/tmp/php-fpm.sock;
+    }
+}
+

@@ -1,0 +1,27 @@
+#!/bin/bash
+
+if [ $1 ] && [ $2 ] && [ $3 ] && [ $4 ]; then
+    domain=$1
+    ip=$2
+    ns1_ip=$3
+    ns2_ip=$4
+
+    if ! [ -s /etc/nginx/conf.d/"$domain" ]; then
+	mkdir /www/"$domain"
+	touch /www/"$domain"/index.html
+	chown -R nginx /www/"$domain"
+
+	cd /etc/nginx
+	eval "echo \"$(cat vhost.tmpl)\"" > conf.d/"$domain"
+	/usr/sbin/nginx -s reload
+
+	cd /var/named/chroot
+	eval "echo \"$(cat domain.tmpl)\"" > var/named/data/"$domain"
+	eval "echo \"$(cat named.tmpl)\"" >> etc/named.conf
+	/usr/sbin/rndc reload
+
+	echo "$domain added"
+    fi
+else
+    echo "$0 <domain> <ip> <ns1_ip> <ns2_ip>"
+fi

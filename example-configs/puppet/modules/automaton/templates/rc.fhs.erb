@@ -1,0 +1,8 @@
+#!/bin/sh
+
+cat /proc/partitions | tail -n+3 | gawk '{ print $4 }' | while read disk; do blockdev --setra 16384 /dev/$disk; done
+
+<% if @operatingsystemmajrelease = 7 %>
+chgrp memcached /run/php-fpm
+chmod 775 /run/php-fpm
+<% end %>

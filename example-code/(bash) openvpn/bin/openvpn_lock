@@ -1,0 +1,17 @@
+#!/bin/bash
+
+source /usr/local/bin.vpn/config
+
+username="${common_name}"
+
+if [ ! ${username} ]; then exit; fi
+
+LOCKFILE="${LOCKDIR}/${username}"
+
+if [ -e "$LOCKFILE" ]; then
+    exit 1
+else
+    touch "$LOCKFILE"
+    LOC_IP=`cat "${CCD}/${username}" | grep 'ifconfig-push' | cut -d " " -f 2`
+    echo "$proto $dev ${untrusted_ip} ${LOC_IP}" > "$LOCKFILE"
+fi

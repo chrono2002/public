@@ -1,0 +1,11 @@
+$TTL    3600
+<%= @host %>.	IN      SOA     ns1.<%= @host %>. root.<%= @host %>. (2013010701 10800 3600 604800 86400)
+<%= @host %>.	IN      NS      ns1.<%= @host %>.
+<%= @host %>.	IN      NS      ns2.<%= @host %>.
+<%= @host %>.	IN      MX      10 mail
+<%= @host %>.	IN      A       <%= @ip %>
+ns1     	IN      A       <%= @ip %>
+ns2     	IN      A       <%= @ip %>
+mail    	IN      A       <%= @ip %>
+www     	IN      A       <%= @ip %>
+<%= @host %>.	IN      TXT     "v=spf1 a mx ip4:<%= @ip %> ptr:mail.<%= @host %> mx:mail.<%= @host %> -all"

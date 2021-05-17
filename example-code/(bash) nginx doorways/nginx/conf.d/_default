@@ -1,0 +1,54 @@
+
+# HTTP
+
+server {
+    listen 80 default;
+    server_name _;
+
+    access_log /var/log/nginx/_default.log;
+
+    location / {
+        root /www/default;
+    }
+}
+
+# HTTPS
+
+server {
+    listen 443 default;
+    server_name _;
+
+    access_log /var/log/nginx/_default.log;
+
+    location / {
+#        root /www/default;
+	index index.php;
+    }
+
+    # -- Redmine
+#    location / {
+#        proxy_pass http://unix:/www/redmine/tmp/thin.0.sock;
+#    }
+
+    # -- Mercurial
+#    location / {
+#	auth_basic           "Restricted";
+#        auth_basic_user_file /etc/nginx/.hg.htpasswd;
+#	
+#	proxy_pass           http://127.0.0.1:8080;
+#    }
+
+    # -- PHP
+    location ~ ^/(.*\.php)$ {
+        include fastcgi_params;
+
+	fastcgi_param SCRIPT_FILENAME /www/default/$1;
+        fastcgi_param DOCUMENT_ROOT /www/default;
+
+        fastcgi_pass unix:/tmp/php-fpm.sock;
+    }
+
+    ssl on;
+    ssl_certificate /etc/nginx/server.crt;
+    ssl_certificate_key /etc/nginx/server.key;
+}

@@ -1,0 +1,19 @@
+\$TTL    3600
+${domain}.   IN      SOA     ns1.$domain abuse.$domain (2012101103 10800 3600 604800 86400)
+${domain}.   IN      NS       ns1.$domain.
+${domain}.   IN      NS       ns2.$domain.
+
+; ${domain}.   IN      MX      10 mail
+
+${domain}.   IN      A        $ip
+
+ns1     IN      A        $ns1_ip
+ns2     IN      A        $ns2_ip
+www     IN      A        $ip
+
+; ftp     IN      A        $ip
+; mail    IN      A        $ip
+; smtp    IN      A        $ip
+; pop     IN      A        $ip
+
+; ${domain}.   IN      TXT      "v=spf1 ip4:$ip a mx ~all"

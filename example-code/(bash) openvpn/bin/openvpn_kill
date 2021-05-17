@@ -1,0 +1,28 @@
+#!/bin/bash
+
+source /usr/local/bin.vpn/config
+USER=$1
+
+killopen ()
+{
+  (
+    sleep 0.2
+    cat /usr/local/etc/openvpn/pass.txt
+    sleep 0.2
+    echo "kill $2"
+    sleep 0.2
+    echo "exit"
+   ) | telnet 127.0.0.1 $1
+}
+
+if ! [ $USER ]; then echo "$0 <username>"; exit 1; fi
+
+if ! [ -s $LOCKDIR/$USER ]; then echo -e "\nuser is offline\n"; exit; fi
+
+( \
+killopen 5551 $USER ; \
+killopen 5552 $USER ; \
+rm $LOCKDIR/$USER \
+) &>/dev/null
+
+echo -e "\nuser killed :-E...\n"

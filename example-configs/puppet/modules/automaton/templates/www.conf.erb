@@ -1,0 +1,47 @@
+[www]
+listen = <%= @php_fpm_socket %>
+listen.owner = <%= @user_www %>
+listen.group = <%= @user_www %>
+user = <%= @user_www %>
+group = <%= @user_www %>
+
+<% if @memorysize_mb.to_i < 300 %>
+pm = static             
+pm.max_children = 4
+<% elsif @memorysize_mb.to_i < 600 %>
+pm = static             
+pm.max_children = 8
+<% elsif @memorysize_mb.to_i < 1200 %>
+pm = static             
+pm.max_children = 16
+<% elsif @memorysize_mb.to_i < 2400 %>
+pm = static             
+pm.max_children = 32
+<% elsif @memorysize_mb.to_i < 4800 %>
+pm = static             
+pm.max_children = 64
+<% else %>
+pm = dynamic           
+pm.start_servers = 64
+pm.min_spare_servers = 64
+pm.max_spare_servers = 256
+pm.max_children = 256
+<% end %>
+
+pm.max_requests = 500
+
+request_slowlog_timeout = 29s
+request_terminate_timeout = 31s
+#listen.backlog = 4096
+#request_slowlog_timeout = 9s
+#request_terminate_timeout = 10s
+listen.backlog = 1024
+slowlog = /var/log/php-fpm/slow.log
+
+rlimit_files = 131072
+rlimit_core = unlimited
+
+catch_workers_output = yes
+
+pm.status_path = /fpm-status
+chdir = /

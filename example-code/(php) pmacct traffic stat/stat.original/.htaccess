@@ -1,0 +1,17 @@
+#AuthType Digest
+#AuthName "test"
+#AuthDigestFile /www/.htpasswd
+#Require valid-user
+
+RewriteEngine on
+#RewriteBase /
+#RewriteBase /stat
+
+# Protect against potential XST cross-site scripting attacks
+RewriteCond  %{REQUEST_METHOD}  ^(TRACE|TRACK)
+RewriteRule  .*  -  [F,NS]
+
+RewriteCond %{REQUEST_URI} !^(.*)?/style\.css
+#RewriteCond %{REQUEST_URI} !^(.*)?/(cyradm|phpmyadmin)/.*
+RewriteCond %{REQUEST_URI} !^(.*)?/networks\.lst
+RewriteRule ^(.*) index.php

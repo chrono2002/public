@@ -1,0 +1,45 @@
+<% if @user_ssh %>
+AllowGroups wheel
+PermitRootLogin no
+<% else %>
+AllowUsers root
+PermitRootLogin yes
+<% end %>
+Port 2
+AddressFamily inet
+PubkeyAuthentication yes
+PasswordAuthentication yes
+
+AllowTcpForwarding no
+AllowAgentForwarding no
+X11Forwarding yes
+GatewayPorts no
+
+AuthorizedKeysFile /etc/ssh/authorized_keys/%u
+Banner none
+
+ClientAliveInterval 30
+ClientAliveCountMax 4
+LoginGraceTime 15
+
+TCPKeepAlive no
+Protocol 2
+PrintMotd no
+PrintLastLog yes
+StrictModes yes
+UseLogin no
+UsePrivilegeSeparation yes
+PermitEmptyPasswords no
+GSSAPIAuthentication no
+HostbasedAuthentication no
+KerberosAuthentication no
+RSAAuthentication no
+RhostsRSAAuthentication no
+
+<% if @operatingsystem == "centos" %>
+#Subsystem       sftp    /usr/libexec/openssh/sftp-server
+<% else %>
+#Subsystem sftp /usr/lib/openssh/sftp-server
+<% end %>
+
+Subsystem sftp internal-sftp

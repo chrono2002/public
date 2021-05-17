@@ -1,0 +1,196 @@
+user <%= @user_www %> <%= @user_www %>;
+worker_processes <%= @processorcount.to_i %>;
+worker_rlimit_nofile 8912;
+timer_resolution 100ms;
+worker_priority -5;
+
+error_log         /var/log/nginx/error.log warn;
+pid               /var/run/nginx.pid;
+
+events {
+    worker_connections  8192;
+    use epoll;
+    multi_accept on;
+}
+
+http {
+    include nginx_fhs.conf;
+#    include nginx_fhs_override.conf;
+
+    server {
+        listen 127.0.0.1:80;
+        server_name _;
+        access_log /var/log/nginx/default.log;
+
+        root /www/default;
+        index index.html;
+
+        location /nginx-status {
+            stub_status on;
+        }
+
+    <% if @service_php %>
+        location /fpm-status {
+            include fastcgi_params;
+
+            fastcgi_param DOCUMENT_ROOT $document_root;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+            fastcgi_pass unix:<%= @php_fpm_socket %>;
+        }
+    <% end %>
+    }
+
+    server {
+        listen 80 default;
+        server_name _;
+        access_log /var/log/nginx/default.log;
+
+        root /www/default;
+        index index.html;
+    }
+
+    server {
+        listen          443;
+        server_name     _;
+
+        ssl                     on;
+        ssl_protocols           SSLv3 TLSv1;
+        ssl_certificate         /etc/nginx/keys/server.crt;
+        ssl_certificate_key     /etc/nginx/keys/server.key;
+
+        access_log      /var/log/nginx/default.log;
+
+        root /www/default;
+        index index.html index.php;
+
+	# Deny dot files
+	location ~ /\. { deny all; access_log off; log_not_found off; }
+
+	include sql.rules;
+
+    <% if @is_munin %>
+	location /index<%= @secure_prefix %>.html {
+    	    auth_basic            "Restricted";
+    	    auth_basic_user_file  /etc/nginx/passwd;
+	}
+    <% end %>
+
+    <% if @is_munin %>
+	location /munin<%= @secure_prefix %> {
+	    alias /var/www/html/munin;
+
+    	    auth_basic            "Restricted";
+    	    auth_basic_user_file  /etc/nginx/passwd;
+	}
+    <% end %>
+
+    <% if @is_phpfpm %>
+#	location /xcache<%= @secure_prefix %> {
+#    	    auth_basic            "Restricted";
+#    	    auth_basic_user_file  /etc/nginx/passwd;
+#	}
+    <% end %>
+
+    <% if @is_email %>
+	location /postfixadmin<%= @secure_prefix %> {
+    	    auth_basic            "Restricted";
+    	    auth_basic_user_file  /etc/nginx/passwd;
+	}
+
+        location /roundcube<%= @secure_prefix %> {
+            alias /usr/share/roundcubemail;
+
+            location ~ ^/.*\.php$ {
+                include fastcgi_params;
+
+                fastcgi_param DOCUMENT_ROOT $document_root;
+                fastcgi_param SCRIPT_FILENAME $request_filename;
+                fastcgi_param PHP_ADMIN_VALUE open_basedir="/usr/share/roundcubemail:/etc/roundcubemail:/usr/share/php:/usr/share/pear:/www/tmp:.";
+                fastcgi_pass unix:<%= @php_fpm_socket %>;
+            }
+        }
+    <% end %>
+
+    <% if @is_mysql %>
+        location /pma<%= @secure_prefix %> {
+            alias /usr/share/phpMyAdmin;
+
+            location ~ ^/.*\.php$ {
+                include fastcgi_params;
+
+                fastcgi_param DOCUMENT_ROOT $document_root;
+                fastcgi_param SCRIPT_FILENAME $request_filename;
+                fastcgi_param PHP_ADMIN_VALUE open_basedir="/usr/share/phpMyAdmin:/var/lib/phpMyAdmin:/etc/phpMyAdmin:/usr/share/php:/www/tmp:.";
+                fastcgi_pass unix:<%= @php_fpm_socket %>;
+            }
+        }
+    <% end %>
+
+    <% if @is_postgresql %>
+        location /pga<%= @secure_prefix %> { 
+            alias /usr/share/phpPgAdmin;
+        
+            location ~ ^/.*\.php$ {
+                include fastcgi_params;
+        
+                fastcgi_param DOCUMENT_ROOT $document_root;
+                fastcgi_param SCRIPT_FILENAME $request_filename;
+                fastcgi_param PHP_ADMIN_VALUE open_basedir="/usr/share/phpPgAdmin:/etc/phpPgAdmin:/usr/share/php:/www/tmp:.";
+                fastcgi_pass unix:<%= @php_fpm_socket %>;
+            }
+        }
+    <% end %>
+
+    <% if @service_php %>
+        location ~ ^/.*\.php$ {
+            include fastcgi_params;
+
+	    try_files $fastcgi_script_name =404;
+
+            fastcgi_param DOCUMENT_ROOT /www/default;
+            fastcgi_param SCRIPT_FILENAME /www/default$fastcgi_script_name;
+            fastcgi_param PHP_ADMIN_VALUE open_basedir="/www/default:/www/tmp:.";
+            fastcgi_pass unix:<%= @php_fpm_socket %>;
+        }
+    <% end %>
+    }
+
+    server {
+        listen 80;
+        server_name <%= @ipaddress %>;
+	access_log /var/log/nginx/<%= @ipaddress %>.access.log;
+	error_log /var/log/nginx/<%= @ipaddress %>.error.log;
+
+        root /www/<%= @ipaddress %>;
+        index index.html index.php;
+
+	# Deny dot files
+	location ~ /\. { deny all; access_log off; log_not_found off; }
+
+	include sql.rules;
+
+    <% if @is_awstats %>
+	location /stat<%= @secure_prefix %> {
+    	    auth_basic            "Restricted";
+    	    auth_basic_user_file  /etc/nginx/passwd;
+	}
+
+        location /awstatsicons {
+            alias /usr/share/awstats/wwwroot/icon;
+        }
+    <% end %>
+
+    <% if @service_php %>
+        location ~ ^/.*\.php$ {
+            include fastcgi_params;
+
+	    try_files $fastcgi_script_name =404;
+
+            fastcgi_param DOCUMENT_ROOT /www/<%= @fqdn %>;
+            fastcgi_param SCRIPT_FILENAME /www/<%= @fqdn %>$fastcgi_script_name;
+            fastcgi_param PHP_ADMIN_VALUE open_basedir="/www/<%= @fqdn %>:/www/tmp:.";
+            fastcgi_pass unix:<%= @php_fpm_socket %>;
+        }
+    <% end %>
+     }
+}

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+source /usr/local/bin.vpn/config
+
+echo ""
+for i in `ls $CCD/* | grep --invert-match proxy`; do
+    LOGIN=${i/*ccd\/}
+    echo $LOGIN
+done
+echo ""

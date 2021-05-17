@@ -1,0 +1,16 @@
+$TTL    3600
+<%= @domain %>.	IN      SOA     ns1.<%= @domain %>. root.<%= @domain %>. (2014102101 10800 3600 604800 86400)
+<%= @domain %>.	IN      NS      ns1.<%= @domain %>.
+<%= @domain %>.	IN      NS      ns2.<%= @domain %>.
+<%= @domain %>.	IN      MX      10 <%= @domain %>.
+<%= @domain %>.	IN      A       <%= @ipaddress %>
+ns1     	IN      A       <%= @ipaddress %>
+ns2     	IN      A       <%= @ipaddress %>
+<% if @vkdj %>
+*               IN      A       <%= @ipaddress %>
+<% else %>
+<%= @domain %>.	IN      MX      10 mail
+mail    	IN      A       <%= @ipaddress %>
+www     	IN      A       <%= @ipaddress %>
+<%= @domain %>.	IN      TXT     "v=spf1 a mx ip4:<%= @ipaddress %> ptr:mail.<%= @domain %> mx:mail.<%= @domain %> -all"
+<% end %>

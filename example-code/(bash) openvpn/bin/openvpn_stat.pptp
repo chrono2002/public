@@ -1,0 +1,21 @@
+#!/bin/bash
+
+source /usr/local/bin.vpn/config
+
+if [ $((ls ${LOCKDIR}/* | grep --invert-match proxy | wc -l) 2>/dev/null) == 0 ]; then echo -e "\nNo users connected\n"; exit; fi
+
+echo -e "\nUsername\tProtocol\tSource IP\tLocal IP\tInterface"
+echo -e "--------\t--------\t---------\t--------\t---------"
+
+for i in `ls ${LOCKDIR}/* | grep --invert-match proxy`; do
+
+    LOGIN=${i/*lock\/}
+
+    # pptp tun3 32226 10.252.0.13
+    cat $i | while read PROTO IF SRC LOC; do
+	printf '%-16s%-16s%-16s' $LOGIN $PROTO $SRC $LOC $IF $PROX
+	echo ""
+    done 
+done
+
+echo -e "\n"

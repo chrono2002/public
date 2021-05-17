@@ -1,0 +1,5 @@
+#!/bin/sh
+
+flags=-umc
+
+/usr/sbin/tmpwatch "$flags" -d -f 2 <%= @dir_www %>/tmp
