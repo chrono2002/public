@@ -1,0 +1,45 @@
+apiVersion: objectbucket.io/v1alpha1
+kind: ObjectBucketClaim
+metadata:
+  name: mongodb-bucket
+  namespace: hosting
+spec:
+  generateBucketName: mongodb
+  storageClassName: rook-ceph-bucket
+
+---
+
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: mongodb-backup
+  namespace: hosting
+spec:
+  schedule: "*/2 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: mongodb-backup
+            image: chrono2002/mongo_s3:4.4.6-bionic
+            command: ["/bin/sh", "-c"]
+            args:
+            - BACKUP="mongodb_backup_$(date +%Y_%m_%d).tar.gz";
+              /usr/bin/mongodump -u root -p $(cat /var/run/mongodb/mongodb-root-password) -o /tmp/backup -h mongodb-headless &&
+              tar cvzf $BACKUP /tmp/backup &&
+              s3cmd --no-ssl --host=${BUCKET_HOST}.hosting.stg --host-bucket= put $BACKUP s3://$BUCKET_NAME;
+            envFrom:
+            - secretRef:
+                name: mongodb-bucket
+            - configMapRef:
+                name: mongodb-bucket
+            volumeMounts:
+            - name: mongodb
+              mountPath: "/var/run/mongodb"
+              readOnly: true
+          restartPolicy: Never
+          volumes:
+          - name: mongodb
+            secret:
+              secretName: mongodb
