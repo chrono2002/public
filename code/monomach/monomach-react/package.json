@@ -12,7 +12,7 @@
     "react-table": "6.9.0",
     "react-useragent": "1.1.2",
     "ip": "1.1.5",
-    "moment": "2.24.0",
+    "moment": "2.29.2",
     "query-string": "6.2.0"
   },
   "scripts": {
